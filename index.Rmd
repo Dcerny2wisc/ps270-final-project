@@ -11,4 +11,4 @@ output:
 
 ## Project thoughts
 
-I am interested in exploring data related to video games potentially.
+I am interested in exploring data related to video videos and the player counts.Possibly how different changes in games increase players or decrease players and the kind of players it might affect.
