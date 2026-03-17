@@ -8,6 +8,7 @@ output:
 ---
 ```{r, include=FALSE}
 library(tidyverse)
+library(ggplot2)
 ```
 
 ## Project Proposal
@@ -15,8 +16,9 @@ library(tidyverse)
 Does serving to specific places on a volleyball court increase chances of winning the point on the first ball? In this study I plan to examine the extent to which serving to distinct places on the court produce a greater chance of winning the point on the first ball. I hypothesize that serving to specific spots on the court is a major factor in winning the first point. I expect that some spots, despite the player or the team, will be more likely than others to induce a win on the first ball. This is because in different rotations it is naturally harder to get a good pass for the setter to make an effective play allowing for the point to be won. Thus, serving in certain spots will be more effective for winning first points. My sample consists of scouting reports from 5 NCAA Division 1 womens volleyball teams. The explanatory variable in my data is the pass location which is coded as 1 ,2 ,3 ,4 ,5 , and 6. Each number is the zone where the serve was passed from, which is where I make the assumption that where the serve was passed from is also where the ball was served to. My outcome variable is if the point was won or lost in the first point or the rally continued. If the observed data shows that the proportion of first points won is significantly greater for one of the serve locations than my hypothesis will be proved correct. If all of the serve locations have fairly equal proportions of first points won, then my hypothesis will be proved incorrect.
 
 
+## Organizing data
 
-```{r}
+```{r Loading data}
 aub<- read_csv("Team_data/AUB_MASTER.csv") 
 ccu<-read_csv("Team_data/CCU_MASTER.csv")
 asu<-read_csv("Team_data/ASU_MASTER.csv")
@@ -29,4 +31,68 @@ head(gso)
 head(isu)
 ```
 
+```{r Selecting needed variables}
+aub<- aub |> 
+  select(Team, Rotation, `Pass Loc`, FBWL)
+ccu<- ccu |> 
+  select(Team, Rotation, `Pass Loc`, FBWL)
+asu<- asu |> 
+  select(Team, Rotation, `Pass Loc`, FBWL)
+gso<- gso |> 
+  select(Team, Rotation, `Pass Loc`, FBWL)
+isu<- isu |> 
+  select(Team, Rotation, `Pass Loc`, FBWL)
+```
 
+```{r Joining data}
+all_teams<- bind_rows(aub, ccu, asu, gso, isu) # Combine all rows into one tibble
+```
+
+```{r Removing NA Values}
+all_teams<- all_teams |> 
+   mutate(FBWL = case_when(FBWL == "W" ~ "Win", FBWL == "L" ~ "Loss"),
+          FBWL = replace_na(FBWL, "Rally Continued")) 
+all_teams
+```
+
+
+ 
+```{r}
+all_teams
+```
+ 
+```{r Proportion of wins for each serve location}
+ prop_win<- all_teams|> 
+  drop_na()|>
+  group_by(`Pass Loc`, FBWL)|> 
+  summarise(n = n(), .groups = "drop_last") |> 
+  mutate(prop = n/sum(n)) |> 
+  filter(FBWL == "Win")
+```
+
+```{r Proportion of losses for each serve location}
+ prop_loss<- all_teams|> 
+  drop_na()|>
+  group_by(`Pass Loc`, FBWL)|> 
+  summarise(n = n(), .groups = "drop_last") |> 
+  mutate(prop = n/sum(n)) |> 
+  filter(FBWL == "Loss")
+```
+
+```{r Plot for win proportion}
+ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+ 
+  geom_col()
+```
+ 
+```{r plot for loss proportion}
+ggplot(prop_loss, mapping = aes(x = `Pass Loc`, y = prop)) + 
+  geom_col()
+```
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
