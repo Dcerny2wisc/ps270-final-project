@@ -116,7 +116,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.30/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js","Team_data/ASU_MASTER.csv","Team_data/AUB_MASTER.csv","Team_data/CCU_MASTER.csv","Team_data/GSO_MASTER.csv","Team_data/ISU_MASTER.csv"]}
+  {"type":"character","attributes":{},"value":["index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/plot for loss proportion-1.png","index_files/figure-html5/Plot for win proportion-1.png","index_files/header-attrs-2.17/header-attrs.js","index_files/header-attrs-2.30/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js","Team_data/ASU_MASTER.csv","Team_data/ASU_MASTER.numbers","Team_data/AUB_MASTER.csv","Team_data/CCU_MASTER.csv","Team_data/GSO_MASTER.csv","Team_data/ISU_MASTER.csv"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -1546,6 +1546,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="d-article">
 <h2 id="project-proposal">Project Proposal</h2>
 <p>Does serving to specific places on a volleyball court increase chances of winning the point on the first ball? In this study I plan to examine the extent to which serving to distinct places on the court produce a greater chance of winning the point on the first ball. I hypothesize that serving to specific spots on the court is a major factor in winning the first point. I expect that some spots, despite the player or the team, will be more likely than others to induce a win on the first ball. This is because in different rotations it is naturally harder to get a good pass for the setter to make an effective play allowing for the point to be won. Thus, serving in certain spots will be more effective for winning first points. My sample consists of scouting reports from 5 NCAA Division 1 womens volleyball teams. The explanatory variable in my data is the pass location which is coded as 1 ,2 ,3 ,4 ,5 , and 6. Each number is the zone where the serve was passed from, which is where I make the assumption that where the serve was passed from is also where the ball was served to. My outcome variable is if the point was won or lost in the first point or the rally continued. If the observed data shows that the proportion of first points won is significantly greater for one of the serve locations than my hypothesis will be proved correct. If all of the serve locations have fairly equal proportions of first points won, then my hypothesis will be proved incorrect.</p>
+<h2 id="organizing-data">Organizing data</h2>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>aub</span><span class='op'>&lt;-</span> <span class='fu'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='op'>(</span><span class='st'>"Team_data/AUB_MASTER.csv"</span><span class='op'>)</span> </span>
@@ -1633,7 +1634,101 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 #   Set &lt;chr&gt;, `Hitter #` &lt;chr&gt;, `Hit To` &lt;chr&gt;, Result &lt;chr&gt;,
 #   Speed...17 &lt;chr&gt;, FBWL &lt;chr&gt;</code></pre>
 </div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>aub</span><span class='op'>&lt;-</span> <span class='va'>aub</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Team</span>, <span class='va'>Rotation</span>, <span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span></span>
+<span><span class='va'>ccu</span><span class='op'>&lt;-</span> <span class='va'>ccu</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Team</span>, <span class='va'>Rotation</span>, <span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span></span>
+<span><span class='va'>asu</span><span class='op'>&lt;-</span> <span class='va'>asu</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Team</span>, <span class='va'>Rotation</span>, <span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span></span>
+<span><span class='va'>gso</span><span class='op'>&lt;-</span> <span class='va'>gso</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Team</span>, <span class='va'>Rotation</span>, <span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span></span>
+<span><span class='va'>isu</span><span class='op'>&lt;-</span> <span class='va'>isu</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='va'>Team</span>, <span class='va'>Rotation</span>, <span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span></span></code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>all_teams</span><span class='op'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind_rows.html'>bind_rows</a></span><span class='op'>(</span><span class='va'>aub</span>, <span class='va'>ccu</span>, <span class='va'>asu</span>, <span class='va'>gso</span>, <span class='va'>isu</span><span class='op'>)</span> <span class='co'># Combine all rows into one tibble</span></span></code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>all_teams</span><span class='op'>&lt;-</span> <span class='va'>all_teams</span> <span class='op'>|&gt;</span> </span>
+<span>   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>FBWL <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/case_when.html'>case_when</a></span><span class='op'>(</span><span class='va'>FBWL</span> <span class='op'>==</span> <span class='st'>"W"</span> <span class='op'>~</span> <span class='st'>"Win"</span>, <span class='va'>FBWL</span> <span class='op'>==</span> <span class='st'>"L"</span> <span class='op'>~</span> <span class='st'>"Loss"</span><span class='op'>)</span>,</span>
+<span>          FBWL <span class='op'>=</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/replace_na.html'>replace_na</a></span><span class='op'>(</span><span class='va'>FBWL</span>, <span class='st'>"Rally Continued"</span><span class='op'>)</span><span class='op'>)</span> </span>
+<span><span class='va'>all_teams</span></span></code></pre>
+</div>
+<pre><code># A tibble: 2,866 × 4
+   Team  Rotation `Pass Loc` FBWL           
+   &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;          
+ 1 AUB          1          5 Win            
+ 2 AUB          1          5 Win            
+ 3 AUB          1          1 Win            
+ 4 AUB          1          1 Win            
+ 5 AUB          1          1 Rally Continued
+ 6 AUB          1          6 Rally Continued
+ 7 AUB          1          5 Rally Continued
+ 8 AUB          2          5 Rally Continued
+ 9 AUB          2          1 Rally Continued
+10 AUB          2          6 Rally Continued
+# ℹ 2,856 more rows</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>all_teams</span></span></code></pre>
+</div>
+<pre><code># A tibble: 2,866 × 4
+   Team  Rotation `Pass Loc` FBWL           
+   &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;          
+ 1 AUB          1          5 Win            
+ 2 AUB          1          5 Win            
+ 3 AUB          1          1 Win            
+ 4 AUB          1          1 Win            
+ 5 AUB          1          1 Rally Continued
+ 6 AUB          1          6 Rally Continued
+ 7 AUB          1          5 Rally Continued
+ 8 AUB          2          5 Rally Continued
+ 9 AUB          2          1 Rally Continued
+10 AUB          2          6 Rally Continued
+# ℹ 2,856 more rows</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span> <span class='va'>prop_win</span><span class='op'>&lt;-</span> <span class='va'>all_teams</span><span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span><span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span>, .groups <span class='op'>=</span> <span class='st'>"drop_last"</span><span class='op'>)</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>prop <span class='op'>=</span> <span class='va'>n</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>FBWL</span> <span class='op'>==</span> <span class='st'>"Win"</span><span class='op'>)</span></span></code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span> <span class='va'>prop_loss</span><span class='op'>&lt;-</span> <span class='va'>all_teams</span><span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>`Pass Loc`</span>, <span class='va'>FBWL</span><span class='op'>)</span><span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span>, .groups <span class='op'>=</span> <span class='st'>"drop_last"</span><span class='op'>)</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>prop <span class='op'>=</span> <span class='va'>n</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>FBWL</span> <span class='op'>==</span> <span class='st'>"Loss"</span><span class='op'>)</span></span></code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>prop_win</span>, mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>`Pass Loc`</span>, y <span class='op'>=</span> <span class='va'>prop</span> <span class='op'>)</span><span class='op'>)</span><span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_col</a></span><span class='op'>(</span><span class='op'>)</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/Plot%20for%20win%20proportion-1.png" alt="" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>prop_loss</span>, mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>`Pass Loc`</span>, y <span class='op'>=</span> <span class='va'>prop</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> </span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_col</a></span><span class='op'>(</span><span class='op'>)</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/plot%20for%20loss%20proportion-1.png" alt="" width="624" /></p>
+</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
