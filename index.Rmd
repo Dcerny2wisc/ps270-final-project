@@ -9,6 +9,7 @@ output:
 ```{r, include=FALSE}
 library(tidyverse)
 library(ggplot2)
+library(scales)
 ```
 
 ## Project Proposal
@@ -81,12 +82,22 @@ all_teams
 
 ```{r Plot for win proportion}
 ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+ 
-  geom_col()
+  geom_col(fill = "dodgerblue", alpha = 1) +
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Percentage of First Ball Points Won by Serve Location", 
+       x = "Serve Location", 
+       y = "Percent of First Ball Points Won")
 ```
  
 ```{r plot for loss proportion}
 ggplot(prop_loss, mapping = aes(x = `Pass Loc`, y = prop)) + 
-  geom_col()
+  geom_col(fill = "indianred", alpha = 1) + 
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(labels = percent_format(), breaks = seq(0, 1, by = 0.05)) +
+  labs(title = "Percentage of First Ball Points Lost by Serve Location", 
+       x = "Serve Location", 
+       y = "Percent of First Ball Points Lost")
 ```
 
  
