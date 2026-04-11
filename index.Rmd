@@ -52,15 +52,11 @@ all_teams<- bind_rows(aub, ccu, asu, gso, isu) # Combine all rows into one tibbl
 ```{r Removing NA Values}
 all_teams<- all_teams |> 
    mutate(FBWL = case_when(FBWL == "W" ~ "Win", FBWL == "L" ~ "Loss"),
-          FBWL = replace_na(FBWL, "Rally Continued")) 
+          FBWL = replace_na(FBWL, "Rally Continued")) |> 
+  mutate(`Pass Loc` = paste("Zone", `Pass Loc`))
 all_teams
 ```
-
-
- 
-```{r}
-all_teams
-```
+## Win/Loss Proportions with Visualizations
  
 ```{r Proportion of wins for each serve location}
  prop_win<- all_teams|> 
@@ -69,6 +65,7 @@ all_teams
   summarise(n = n(), .groups = "drop_last") |> 
   mutate(prop = n/sum(n)) |> 
   filter(FBWL == "Win")
+
 ```
 
 ```{r Proportion of losses for each serve location}
@@ -83,7 +80,6 @@ all_teams
 ```{r Plot for win proportion}
 ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+ 
   geom_col(fill = "dodgerblue", alpha = 1) +
-  scale_x_continuous(breaks = 1:6) +
   scale_y_continuous(labels = percent_format()) +
   labs(title = "Percentage of First Ball Points Won by Serve Location", 
        x = "Serve Location", 
@@ -93,12 +89,42 @@ ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+
 ```{r plot for loss proportion}
 ggplot(prop_loss, mapping = aes(x = `Pass Loc`, y = prop)) + 
   geom_col(fill = "indianred", alpha = 1) + 
-  scale_x_continuous(breaks = 1:6) +
   scale_y_continuous(labels = percent_format(), breaks = seq(0, 1, by = 0.05)) +
   labs(title = "Percentage of First Ball Points Lost by Serve Location", 
        x = "Serve Location", 
        y = "Percent of First Ball Points Lost")
 ```
+## Regression and Interpretation
+```{r Regression showing zone win comparisons}
+lm(FBWL == "Win" ~ `Pass Loc`, data = all_teams)
+```
+Interpretation: 
+Within this regression, the intercept is the predicted win rate for serves to zone 1, which is 0.30154 or 30.154 and this serves as a baseline value for the other locations. This means that when the ball is served to zone 2, the predicted first ball win rate is .11513 or 11.513 percentage points higher than if the ball were to be served to zone 1. Following this logic for the other zones, it can be observed that serves to zone 3 have a predicted win rate that is 11.733 percentage points lower than serves to zone 1. Serves to zone 4 have a predicted win rate that is 8.556 percentage points higher than serves to zone 1. Serves to zone 5 have a predicted win rate that is 0.2506 percentage points lower than serves to zone 1. Finally, serves to zone 6 have a predicted win rate that is 0.0913 percentage points lower than serves to zone 1. All in all, this regression predicts that serves to zone 2 will have a win rate that is marginally higher than zone 1 and the next closest predicted win rate which is zone 4.
+
+```{r}
+library(infer)
+
+boot_prop_win <- all_teams|> 
+  rep_slice_sample(prop = 1, replace = TRUE, reps = 1000) |> 
+  drop_na() |>
+  group_by(replicate, `Pass Loc`, FBWL)|> 
+  summarise(n = n(), .groups = "drop_last") |> 
+  mutate(prop = n/sum(n)) |> 
+  filter(FBWL == "Win") |>
+   pivot_wider( names_from = replicate, `Pass Loc`,
+              values_from = prop) |>
+     mutate(mean_prop = rowMeans(across(where(is.numeric)), na.rm = TRUE)) |> 
+    select(`Pass Loc`, mean_prop)
+
+
+ 
+boot_prop_win
+```
+```{r}
+ggplot(data = boot_prop_win, mapping = aes(x = `Pass Loc`)) + 
+  geom_col(aes(y = mean_prop))
+```
+
 
  
  
