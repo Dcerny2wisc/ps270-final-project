@@ -12,9 +12,9 @@ library(ggplot2)
 library(scales)
 ```
 
-## Project Proposal
+## Introduction
 
-Does serving to specific places on a volleyball court increase chances of winning the point on the first ball? In this study I plan to examine the extent to which serving to distinct places on the court produce a greater chance of winning the point on the first ball. I hypothesize that serving to specific spots on the court is a major factor in winning the first point. I expect that some spots, despite the player or the team, will be more likely than others to induce a win on the first ball. This is because in different rotations it is naturally harder to get a good pass for the setter to make an effective play allowing for the point to be won. Thus, serving in certain spots will be more effective for winning first points. My sample consists of scouting reports from 5 NCAA Division 1 womens volleyball teams. The explanatory variable in my data is the pass location which is coded as 1 ,2 ,3 ,4 ,5 , and 6. Each number is the zone where the serve was passed from, which is where I make the assumption that where the serve was passed from is also where the ball was served to. My outcome variable is if the point was won or lost in the first point or the rally continued. If the observed data shows that the proportion of first points won is significantly greater for one of the serve locations than my hypothesis will be proved correct. If all of the serve locations have fairly equal proportions of first points won, then my hypothesis will be proved incorrect.
+Does serving to specific places on a volleyball court increase chances of winning the point on the first ball? In this study I plan to examine the extent to which serving to distinct places on the court produce a greater chance of winning the point on the first ball. I hypothesize that serving to specific spots on the court is a major factor in winning the first point. I expect that some spots, despite the player or the team, will be more likely than others to induce a win on the first ball. This is because in different rotations it is naturally harder to get a good pass for the setter to make an effective play allowing for the point to be won. Thus, serving in certain spots will be more effective for winning first points. My sample consists of scouting reports from 5 NCAA Division 1 womens volleyball teams. The explanatory variable in my data is the pass location which is coded as 1 ,2 ,3 ,4 ,5 , and 6. Each number is the zone where the serve was passed from, which is where I make the assumption that where the serve was passed from is also where the ball was served to. My outcome variable is if the point was won or lost in the first point or the rally continued. If the observed data shows that the proportion of first points won is significantly greater for one of the serve locations than my hypothesis will be proved correct. If all of the serve locations have fairly equal proportions of first points won, then my hypothesis will be proved incorrect. I find this to be particularly interesting because I used to play volleyball and always wondered if one zone was always more effective than others. Additionally, this data actually came from the scouting reports that my sisters team is provided (South Alabama).
 
 
 ## Organizing data
@@ -25,11 +25,6 @@ ccu<-read_csv("Team_data/CCU_MASTER.csv")
 asu<-read_csv("Team_data/ASU_MASTER.csv")
 gso<-read_csv("Team_data/GSO_MASTER.csv")
 isu<-read_csv("Team_data/ISU_MASTER.csv")
-head(aub)
-head(ccu)
-head(asu)
-head(gso)
-head(isu)
 ```
 
 ```{r Selecting needed variables}
@@ -54,8 +49,8 @@ all_teams<- all_teams |>
    mutate(FBWL = case_when(FBWL == "W" ~ "Win", FBWL == "L" ~ "Loss"),
           FBWL = replace_na(FBWL, "Rally Continued")) |> 
   mutate(`Pass Loc` = paste("Zone", `Pass Loc`))
-all_teams
 ```
+
 ## Win/Loss Proportions with Visualizations
  
 ```{r Proportion of wins for each serve location}
@@ -65,7 +60,7 @@ all_teams
   summarise(n = n(), .groups = "drop_last") |> 
   mutate(prop = n/sum(n)) |> 
   filter(FBWL == "Win")
-
+prop_win
 ```
 
 ```{r Proportion of losses for each serve location}
@@ -86,7 +81,7 @@ ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+
        y = "Percent of First Ball Points Won")
 ```
  
-```{r plot for loss proportion}
+```{r Plot for loss proportion}
 ggplot(prop_loss, mapping = aes(x = `Pass Loc`, y = prop)) + 
   geom_col(fill = "indianred", alpha = 1) + 
   scale_y_continuous(labels = percent_format(), breaks = seq(0, 1, by = 0.05)) +
@@ -101,9 +96,10 @@ lm(FBWL == "Win" ~ `Pass Loc`, data = all_teams)
 Interpretation: 
 Within this regression, the intercept is the predicted win rate for serves to zone 1, which is 0.30154 or 30.154 and this serves as a baseline value for the other locations. This means that when the ball is served to zone 2, the predicted first ball win rate is .11513 or 11.513 percentage points higher than if the ball were to be served to zone 1. Following this logic for the other zones, it can be observed that serves to zone 3 have a predicted win rate that is 11.733 percentage points lower than serves to zone 1. Serves to zone 4 have a predicted win rate that is 8.556 percentage points higher than serves to zone 1. Serves to zone 5 have a predicted win rate that is 0.2506 percentage points lower than serves to zone 1. Finally, serves to zone 6 have a predicted win rate that is 0.0913 percentage points lower than serves to zone 1. All in all, this regression predicts that serves to zone 2 will have a win rate that is marginally higher than zone 1 and the next closest predicted win rate which is zone 4.
 
-```{r}
-library(infer)
+## Bootstrap
 
+```{r Bootstrap with mean calculations}
+library(infer)
 boot_prop_win <- all_teams|> 
   rep_slice_sample(prop = 1, replace = TRUE, reps = 1000) |> 
   drop_na() |>
@@ -111,19 +107,47 @@ boot_prop_win <- all_teams|>
   summarise(n = n(), .groups = "drop_last") |> 
   mutate(prop = n/sum(n)) |> 
   filter(FBWL == "Win") |>
-   pivot_wider( names_from = replicate, `Pass Loc`,
-              values_from = prop) |>
-     mutate(mean_prop = rowMeans(across(where(is.numeric)), na.rm = TRUE)) |> 
-    select(`Pass Loc`, mean_prop)
-
-
- 
-boot_prop_win
+  pivot_wider( names_from = replicate, `Pass Loc`, 
+               values_from = prop) |>
+  mutate(mean_prop = rowMeans(across(where(is.numeric)), na.rm = TRUE)) |> 
+  select(`Pass Loc`, mean_prop)
 ```
-```{r}
+
+```{r Plotting the bootstrap}
 ggplot(data = boot_prop_win, mapping = aes(x = `Pass Loc`)) + 
   geom_col(aes(y = mean_prop))
 ```
+
+## Is it Statistically Significant?
+
+```{r Calculating the observed distribution value}
+obv_dist <- all_teams |> 
+  filter(FBWL == "Win" | FBWL == "Loss") |> 
+  specify(FBWL ~ `Pass Loc`) |> 
+  hypothesize(null = "independence") |> 
+  calculate(stat = "Chisq")
+```
+
+```{r Creating and calculating null distribution values}
+null_dist <- all_teams |> 
+  filter(FBWL == "Win" | FBWL == "Loss") |> 
+  specify(FBWL ~ `Pass Loc`, success = "Win") |> 
+  hypothesise(null = "independence") |> 
+  generate(reps = 1000, type = "permute") |> 
+  calculate(stat = "chisq") 
+```
+
+```{r Calculating p-value for the null distribution}
+null_dist |> 
+  get_p_value(obs_stat = obv_dist, direction = "right")
+```
+
+```{r Graph null distribtion with p-value and observed value}
+null_dist|> 
+  visualise() + 
+   shade_p_value(obs_stat = obv_dist, direction = "right")
+```
+
 
 
  
