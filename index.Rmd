@@ -26,9 +26,8 @@ As stated before, the data used for this experiment comes from scouting reports 
   
 With the zone served as the predictor and the first ball point being won as the outcome, I can compare each zone to see if one zone has a higher percentage of first ball points won. If one zone's win percentage is clearly higher than the rest and I can prove that my observed outcome is significantly different from a randomized sample (which eliminates the relationship between zones and first ball wins by randomizing the data) then my hypothesis will be supportable. In order for my data to be statistically significant I will be judging based on a 95% confidence interval. If my observed data is not significantly different from the randomized data, then my hypotheses will be rejected because a small difference in the randomized data and my data would prove that the relationship between first ball wins and serve location is minimal if not obsolete.
 
-### Organizing data:
 
-```{r Loading data}
+```{r Loading data,echo=FALSE}
 aub<- read_csv("Team_data/AUB_MASTER.csv") 
 ccu<-read_csv("Team_data/CCU_MASTER.csv")
 asu<-read_csv("Team_data/ASU_MASTER.csv")
@@ -36,7 +35,7 @@ gso<-read_csv("Team_data/GSO_MASTER.csv")
 isu<-read_csv("Team_data/ISU_MASTER.csv")
 ```
 
-```{r Selecting needed variables}
+```{r Selecting needed variables,echo=FALSE}
 aub<- aub |> 
   select(Team, Rotation, `Pass Loc`, FBWL)
 ccu<- ccu |> 
@@ -49,12 +48,12 @@ isu<- isu |>
   select(Team, Rotation, `Pass Loc`, FBWL)
 ```
 
-```{r Joining data}
+```{r Joining data,echo=FALSE}
 all_teams<- bind_rows(aub, ccu, asu, gso, isu) # Combine all data sets into one tibble
 ```
 
 
-```{r Removing NA Values}
+```{r Removing NA Values,echo=FALSE}
 all_teams<- all_teams |> 
    mutate(FBWL = case_when(FBWL == "W" ~ "Win", FBWL == "L" ~ "Loss"),
           FBWL = replace_na(FBWL, "Rally Continued")) |> 
@@ -65,7 +64,7 @@ all_teams<- all_teams |>
 
 ### Plot of First Ball Wins:
 
-```{r Plot of First Ball Wins}
+```{r Plot of First Ball Wins,echo=FALSE}
 all_teams|> 
   drop_na()|>
   group_by(`Pass Loc`, FBWL)|> 
@@ -86,7 +85,7 @@ all_teams|>
 
 ### Win Proportions with Visualization:
  
-```{r Proportion of wins for each serve location}
+```{r Proportion of wins for each serve location,echo=FALSE}
  prop_win<- all_teams|> 
   drop_na()|>
   group_by(`Pass Loc`, FBWL)|> 
@@ -95,8 +94,7 @@ all_teams|>
   filter(FBWL == "Win")
 ```
 
-
-```{r Plot for win proportion}
+```{r Plot for win proportion,echo=FALSE}
 ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+ 
   geom_col(fill = "dodgerblue", alpha = 1) +
   scale_y_continuous(labels = percent_format()) +
@@ -106,7 +104,7 @@ ggplot(prop_win, mapping = aes(x = `Pass Loc`, y = prop ))+
 ```
 
 ### Regression:
-```{r Regression showing zone win comparisons}
+```{r Regression showing zone win comparisons,echo=FALSE}
 reg_win<- lm(FBWL == "Win" ~ `Pass Loc`, data = all_teams) 
 
 fstat <- summary(reg_win)$fstatistic
@@ -127,7 +125,7 @@ modelsummary(reg_win,
 
 ### Additional Analysis:
 
-```{r Calculating the observed distribution value}
+```{r Calculating the observed distribution value,echo=FALSE}
 obv_dist <- all_teams |> 
   filter(FBWL == "Win"| FBWL == "Loss") |> 
   specify(FBWL ~ `Pass Loc`) |> 
@@ -135,7 +133,7 @@ obv_dist <- all_teams |>
     calculate(stat = "Chisq")
 ```
 
-```{r Creating and calculating null distribution values}
+```{r Creating and calculating null distribution values,echo=FALSE}
 null_dist <- all_teams |> 
   filter(FBWL == "Win" | FBWL == "Loss") |> 
   specify(FBWL ~ `Pass Loc`) |> 
@@ -144,13 +142,13 @@ null_dist <- all_teams |>
   calculate(stat = "chisq") 
 ```
 
-```{r Calculating p-value for the null distribution}
+```{r Calculating p-value for the null distribution,echo=FALSE}
 null_p_value<- null_dist |> 
   get_p_value(obs_stat = obv_dist, direction = "right")
 knitr::kable(null_p_value, col.names = "Null Distribution P-value")
 ```
 
-```{r Graph null distribtion with p-value and observed value}
+```{r Graph null distribtion with p-value and observed value,echo=FALSE}
 p_plot<- null_dist|> 
   visualise() + 
   shade_p_value(obs_stat = obv_dist, direction = "right", fill = "red", alpha = .5) +
@@ -175,10 +173,14 @@ While my observation might have had a lack of evidence to reject the null, I tho
 
 In the end, both my original regression on the observation and my chi squared test both failed to provide evidence of a serve location causing a greater proportion of first ball points to be won. This being said, I fail to reject my null hypothesis meaning in doing this test I found little evidence that serve location and first ball points being won are intertwined but not enough evidence to say the observation is statistically significant. Thus, the test shows that it is unlikely that serve location is causal of first ball points won. However, there were many limitations to my test. For starters, the whole test was based on observation and could not establish true causality even if it was statistically significant. It also worked off of the assumption that the serve was meant to be served to the zone it was passed from, and this is simply not always the case. There is also some missing data because this test was based on observations, some zones in my data were served significantly less times than others which could have caused some bias in the overall data. Furthermore, the test does not account for possible player and overall team disparities. For example, if one player or team is just much worse at passing and is constantly changing what zone they pass from, the data could be different. This is also an example of a confounder in this test because if a player is much worse at passing they will likely be targeted no matter which zone they are in and they will likely result in a loss. This means that one player could not only affect which zone is being served, but also if the team wins the first ball point. Given more time and money, I would treat this more like an experiment rather than an observation. Meaning I could tell the server where to serve and I could also ensure that each zone receives the same amount of serves to make the data even less biased. The analysis could also be improved by adding in all the different rotations, positions, and side of the court the serve is initiated from in order to get a more exact answer and remove a lot of unknown data from my analysis.
 
+## AI Disclaimer 
+I did use AI to help me figure out the model summary for the nicer looking regression output. I was struggling for a long time and just couldn't get it to look quite the way I wanted. The main thing AI helped me do was put the model p-value at the end of the table.
+
+```{r print-code, ref.label=knitr::all_labels(), echo = TRUE, eval=FALSE}
+
+```
 
 
-
- 
  
  
  
